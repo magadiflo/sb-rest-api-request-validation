@@ -1,5 +1,7 @@
 package com.magadiflo.app.domain;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
@@ -19,6 +21,7 @@ public class Product implements Serializable {
      * un carácter que no sea un espacio en blanco. Acepta CharSequence.
      */
     @NotBlank(message = "Product name must not be blank")
+    @Length(min = 5, max = 512, message = "Product name must have 5-512 characteres")
     @Column(nullable = false, length = 512, unique = true)
     private String name;
 

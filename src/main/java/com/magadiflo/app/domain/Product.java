@@ -3,6 +3,8 @@ package com.magadiflo.app.domain;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
@@ -25,6 +27,8 @@ public class Product implements Serializable {
     @Column(nullable = false, length = 512, unique = true)
     private String name;
 
+    @Min(value = 10, message = "Product price must be greater than 9")
+    @Max(value = 9999, message = "Product price must be less than 10000")
     private Double price;
 
     public Product() {

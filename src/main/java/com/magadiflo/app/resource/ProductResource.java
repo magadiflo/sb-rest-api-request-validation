@@ -4,6 +4,7 @@ import com.magadiflo.app.domain.Product;
 import com.magadiflo.app.service.IProductService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,7 +23,7 @@ public class ProductResource {
     }
 
     @PostMapping
-    public Product addOne(@RequestBody Product product) {
+    public Product addOne(@RequestBody @Valid Product product) {
         return this.productService.save(product);
     }
 

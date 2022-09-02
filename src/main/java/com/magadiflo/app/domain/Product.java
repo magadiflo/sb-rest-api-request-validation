@@ -1,6 +1,7 @@
 package com.magadiflo.app.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 @Entity
@@ -13,6 +14,11 @@ public class Product implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * @NotBlank, el elemento anotado no debe ser nulo y debe contener al menos
+     * un carácter que no sea un espacio en blanco. Acepta CharSequence.
+     */
+    @NotBlank(message = "Product name must not be blank")
     @Column(nullable = false, length = 512, unique = true)
     private String name;
 

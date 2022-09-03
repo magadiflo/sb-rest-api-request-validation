@@ -1,6 +1,5 @@
 package com.magadiflo.app.exception;
 
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,10 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +27,32 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
-        List<String> errorsMessage = fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
+
+        //************* FORMA 01:  Muestra solo los errores
+        //List<String> errorsMessage = fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
+
+
+
+        //************* FORMA 02: Muestra el nombre del campo donde se produjo el error agrupando todos sus errores producidos
+        //Ejemplo de la agrupación tomado de la siguiente web
+        //https://mkyong.com/java8/java-8-collectors-groupingby-and-mapping-example/
+        /*
+        Map<String, List<String>> errorsMessage = fieldErrors.stream()
+                .collect(
+                        Collectors.groupingBy(
+                                FieldError::getField,
+                                Collectors.mapping(fieldError -> fieldError.getDefaultMessage(), Collectors.toList())
+                        )
+                );
+         */
+
+
+        //************* FORMA 03: Muestra el nombre del campo y el error producido
+        List<Map<String, String>> errorsMessage = fieldErrors.stream().map(fieldError -> {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put(fieldError.getField(), fieldError.getDefaultMessage());
+            return errorMap;
+        }).collect(Collectors.toList());
 
         Map<String, Object> responseBody = new LinkedHashMap<>();
         responseBody.put("timestamp", new Date());

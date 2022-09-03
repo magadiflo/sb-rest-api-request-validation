@@ -4,6 +4,7 @@ import com.magadiflo.app.domain.Student;
 import com.magadiflo.app.service.IStudentService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,7 +23,7 @@ public class StudentResource {
     }
 
     @PostMapping
-    public Student addOne(@RequestBody Student student) {
+    public Student addOne(@RequestBody @Valid Student student) {
         return this.studentService.save(student);
     }
 }

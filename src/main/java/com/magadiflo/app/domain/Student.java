@@ -1,6 +1,12 @@
 package com.magadiflo.app.domain;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,12 +20,18 @@ public class Student implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Student name must not be blank")
+    @Length(min = 3, max = 40, message = "Student name must be between 3-40 characteres")
     @Column(nullable = false, length = 40)
     private String name;
 
+    @NotNull
+    @Past(message = "Student's birthday must be a date in the past")
     @Column(name = "birth_day")
     private Date birthDay;
 
+    @NotNull
+    @Future(message = "Student's graduation date must be a date in future")
     @Column(name = "graduation_date")
     private Date graduationDate;
 

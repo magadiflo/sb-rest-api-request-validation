@@ -1,6 +1,9 @@
 package com.magadiflo.app.domain;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import java.io.Serializable;
 
 @Entity
@@ -13,9 +16,12 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Email(message = "Email is not valid")
+    @Length(min = 5, max = 50, message = "Email address must have 5-50 characteres")
     @Column(nullable = false, unique = true, length = 50)
     private String email;
 
+    @Length(min = 5, max = 10, message = "Password must be between 5-10 characteres")
     @Column(nullable = false, length = 10)
     private String password;
 

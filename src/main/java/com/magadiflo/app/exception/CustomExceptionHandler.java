@@ -1,8 +1,11 @@
 package com.magadiflo.app.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -32,7 +35,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         //List<String> errorsMessage = fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
 
 
-
         //************* FORMA 02: Muestra el nombre del campo donde se produjo el error agrupando todos sus errores producidos
         //Ejemplo de la agrupación tomado de la siguiente web
         //https://mkyong.com/java8/java-8-collectors-groupingby-and-mapping-example/
@@ -60,4 +62,52 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         responseBody.put("errors", errorsMessage);
         return new ResponseEntity<>(responseBody, headers, HttpStatus.BAD_REQUEST);
     }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        //Detalles del error
+        InvalidFormatException invalid = (InvalidFormatException) ex.getCause();
+        String inputValue = invalid.getValue().toString();
+        String errorMessage = invalid.getOriginalMessage();
+        String field = invalid.getPath().stream().limit(1).map(JsonMappingException.Reference::getFieldName).findAny().get();
+        ErrorDetalleAdicional errorDetalleAdicional = new ErrorDetalleAdicional(field, inputValue, errorMessage);
+
+        Map<String, Object> errorDetalle = new HashMap<>();
+        errorDetalle.put("not-readable", "Solicitud no completada. Se detectó solicitud JSON con formato incorrecto.");
+        errorDetalle.put("detalles", errorDetalleAdicional);
+
+        Map<String, Object> responseBody = new LinkedHashMap<>();
+        responseBody.put("timestamp", new Date());
+        responseBody.put("status", status.value());
+        responseBody.put("errors", Arrays.asList(errorDetalle));
+
+        return new ResponseEntity<>(responseBody, headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Map<String, Object> errorGeneral = new HashMap<>();
+        errorGeneral.put("global", "Ocurrió un error al procesar la solicitud.");
+
+        Map<String, Object> responseBody = new LinkedHashMap<>();
+        responseBody.put("timestamp", new Date());
+        responseBody.put("status", status.value());
+        responseBody.put("errors", Arrays.asList(errorGeneral));
+
+        return new ResponseEntity<>(responseBody, headers, HttpStatus.BAD_REQUEST);
+    }
+
+    class ErrorDetalleAdicional {
+        public final String campo;
+        public final String valorIngresado;
+        public final String mensajeError;
+
+        public ErrorDetalleAdicional(String campo, String valorIngresado, String mensajeError) {
+            this.campo = campo;
+            this.valorIngresado = valorIngresado;
+            this.mensajeError = mensajeError;
+        }
+    }
+
 }
+
